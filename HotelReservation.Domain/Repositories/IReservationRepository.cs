@@ -1,4 +1,5 @@
 ﻿using HotelReservation.Domain.Entities;
+using HotelReservation.Domain.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,5 +14,6 @@ namespace HotelReservation.Domain.Repositories
         Task<Reservation> Get(Guid id);
         Task<List<Reservation>> Get();
         Task SetStatus(Guid id, bool status);
+        Task<bool> HasActiveReservation(Guid roomId, DateRange stayPeriod);
     }
 }

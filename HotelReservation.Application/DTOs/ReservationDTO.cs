@@ -10,9 +10,6 @@ namespace HotelReservation.Application.DTOs
         public Guid RoomId { get; set; }
 
         [Required]
-        public List<string> GuestIds { get; set; }
-
-        [Required]
         public DateOnly StartDate { get; set; }
 
         [Required]

@@ -79,5 +79,19 @@ namespace HotelReservation.Infraestructure.Repositories
             var update = Builders<ReservationDTO>.Update.Set(r => r.Status, status);
             await collection.UpdateOneAsync(r => r.Id == id, update);
         }
+
+        public async Task<bool> HasActiveReservation(Guid roomId, DateRange stayPeriod)
+        {
+            var filterBuilder = Builders<ReservationDTO>.Filter;
+            var filter = filterBuilder.And(
+                filterBuilder.Eq(r => r.RoomId, roomId),
+                filterBuilder.Eq(r => r.Status, true), // Solo reservas activas
+                filterBuilder.Lt(r => r.StayPeriodEnd, stayPeriod.EndDate.ToDateTime(TimeOnly.MinValue)), // La fecha de fin de la reserva es menor que la fecha de fin del rango
+                filterBuilder.Gt(r => r.StayPeriodStart, stayPeriod.StartDate.ToDateTime(TimeOnly.MinValue)) // La fecha de inicio de la reserva es mayor que la fecha de inicio del rango
+            );
+
+            var reservations = await collection.Find(filter).ToListAsync();
+            return reservations.Any();
+        }
     }
 }

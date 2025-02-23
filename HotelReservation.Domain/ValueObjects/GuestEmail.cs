@@ -25,8 +25,8 @@ namespace HotelReservation.Domain.ValueObjects
             {
                 throw new ArgumentException("Email cannot be empty");
             }
-            string emailPattern = @"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$";
-            if (!Regex.IsMatch(emailPattern, value))
+            string emailPattern = @"^[\w\.-]+@[\w\.-]+\.\w{2,3}$";
+            if (!Regex.IsMatch(value, emailPattern))
             {
                 throw new ArgumentException("Email is invalid");
             }

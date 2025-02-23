@@ -31,7 +31,6 @@ namespace HotelReservation.Application.DTOs
 
         [Required]
         public string Phone { get; set; }
-        [Required]
         public Guid ReservationId { get; set; }
     }
 }

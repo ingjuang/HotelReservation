@@ -68,6 +68,11 @@ namespace HotelReservation.Application.Services
         {
             try
             {
+                Hotel hotelVerify = await _hotelRepository.Get(hotelDTO.Id);
+                if(hotelVerify == null)
+                {
+                    return new PetitionResponse { Success = false, Message = "Hotel not found" };
+                }
                 Hotel hotel = new Hotel
                 (
                     Id.Create(hotelDTO.Id),

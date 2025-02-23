@@ -15,7 +15,6 @@ namespace HotelReservation.Infraestructure.DBContext
         private readonly IMongoDatabase _database;
         static MongoDBContext()
         {
-            // Register the GuidSerializer with the correct representation
             BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
         }
         public MongoDBContext(IMongoClient client, MongoDBSettings mongoDBSettings)

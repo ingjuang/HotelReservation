@@ -82,7 +82,6 @@ namespace HotelReservation.Application.Services
         {
             try
             {
-                // Obtener todas las reservas
                 List<Reservation> reservations = await _reservationRepository.Get();
                 if (reservations == null || !reservations.Any())
                 {
@@ -94,16 +93,13 @@ namespace HotelReservation.Application.Services
                     };
                 }
 
-                // Obtener todos los huéspedes en paralelo para cada reserva
                 var guestTasks = reservations.Select(res => _guestRepository.GetGuestByReservation(res.Id));
                 var guestsList = await Task.WhenAll(guestTasks);
 
-                // Construir la lista de DTOs
                 List<ReservationDTO> response = reservations.Select((res, index) => new ReservationDTO
                 {
                     Id = res.Id.Value,
                     RoomId = res.Room.Id.Value,
-                    GuestIds = guestsList[index].Select(g => g.Id.Value.ToString()).ToList(),
                     StartDate = res.StayPeriod.StartDate,
                     EndDate = res.StayPeriod.EndDate,
                     Status = res.Status,
@@ -111,6 +107,7 @@ namespace HotelReservation.Application.Services
                     EmergencyContactPhone = res.EmergencyContact.PhoneNumber,
                     Guests = guestsList[index].Select(g => new GuestDTO
                     {
+                        Id = g.Id,
                         FirstName = g.FullName.FirstName,
                         LastName = g.FullName.LastName,
                         BirthDate = g.BirthDate,
@@ -154,7 +151,6 @@ namespace HotelReservation.Application.Services
                 {
                     Id = reservation.Id.Value,
                     RoomId = reservation.Room.Id.Value,
-                    GuestIds = guests.Select(g => g.Id.Value.ToString()).ToList(),
                     StartDate = reservation.StayPeriod.StartDate,
                     EndDate = reservation.StayPeriod.EndDate,
                     Status = reservation.Status,
@@ -162,6 +158,7 @@ namespace HotelReservation.Application.Services
                     EmergencyContactPhone = reservation.EmergencyContact.PhoneNumber,
                     Guests = guests.Select(g => new GuestDTO
                     {
+                        Id = g.Id,
                         FirstName = g.FullName.FirstName,
                         LastName = g.FullName.LastName,
                         BirthDate = g.BirthDate,

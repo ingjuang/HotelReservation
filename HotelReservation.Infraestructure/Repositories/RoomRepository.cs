@@ -100,24 +100,31 @@ namespace HotelReservation.Infraestructure.Repositories
             var hotelIds = hotels.Select(h => h.Id.Value).ToList();
 
             var filter = Builders<RoomDTO>.Filter.And(
-               Builders<RoomDTO>.Filter.In(r => r.HotelId, hotelIds),
-               Builders<RoomDTO>.Filter.Eq(r => r.IsAvailable, true),
-               Builders<RoomDTO>.Filter.Eq(r => r.IsEnabled, true),
-               Builders<RoomDTO>.Filter.Gte(r => r.MaxGuests, guests)
-           );
+                Builders<RoomDTO>.Filter.In(r => r.HotelId, hotelIds),
+                Builders<RoomDTO>.Filter.Eq(r => r.IsAvailable, true),
+                Builders<RoomDTO>.Filter.Eq(r => r.IsEnabled, true),
+                Builders<RoomDTO>.Filter.Gte(r => r.MaxGuests, guests)
+            );
 
             List<RoomDTO> roomDtos = await collection.Find(filter).ToListAsync();
-            return roomDtos.Select(r => new Room
-            (
-                Id.Create(r.Id),
-                hotels.SingleOrDefault(h => h.Id == r.HotelId),
-                RoomPrice.Create(r.Price, r.Taxes),
-                r.Type,
-                r.Location,
-                r.MaxGuests,
-                r.IsAvailable,
-                r.IsEnabled
-            )).ToList();
+
+            var availableRooms = new List<Room>();
+            foreach (var roomDto in roomDtos)
+            {
+                var hotel = hotels.SingleOrDefault(h => h.Id == roomDto.HotelId);
+                availableRooms.Add(new Room(
+                    Id.Create(roomDto.Id),
+                    hotel,
+                    RoomPrice.Create(roomDto.Price, roomDto.Taxes),
+                    roomDto.Type,
+                    roomDto.Location,
+                    roomDto.MaxGuests,
+                    roomDto.IsAvailable,
+                    roomDto.IsEnabled
+                ));
+            }
+
+            return availableRooms;
         }
 
         public async Task SetEnable(Guid id, bool isEnabled)

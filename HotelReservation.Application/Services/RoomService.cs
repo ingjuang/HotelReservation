@@ -3,6 +3,7 @@ using HotelReservation.Application.Services.Interfaces;
 using HotelReservation.Domain.Entities;
 using HotelReservation.Domain.Repositories;
 using HotelReservation.Domain.ValueObjects;
+using HotelReservation.Infraestructure.Repositories;
 using HotelReservation.Util.Reponses;
 using System;
 using System.Collections.Generic;
@@ -16,10 +17,12 @@ namespace HotelReservation.Application.Services
     {
         private readonly IRoomRepository _roomRepository;
         private readonly IHotelRepository _hotelRepository;
-        public RoomService(IRoomRepository roomRepository, IHotelRepository hotelRepository)
+        private readonly IReservationRepository _reservationRepository;
+        public RoomService(IRoomRepository roomRepository, IHotelRepository hotelRepository, IReservationRepository reservationRepository)
         {
             _roomRepository = roomRepository;
             _hotelRepository = hotelRepository;
+            _reservationRepository = reservationRepository;
         }
         public async Task<PetitionResponse> CreateRoom(RoomDTO roomDTO)
         {
@@ -106,18 +109,22 @@ namespace HotelReservation.Application.Services
                 List<RoomDTO> response = new List<RoomDTO>();
                 foreach (Room room in rooms)
                 {
-                    response.Add(new RoomDTO
+                    bool hasActiveReservation = await _reservationRepository.HasActiveReservation(room.Id, stayPeriod);
+                    if (!hasActiveReservation)
                     {
-                        Id = room.Id.Value,
-                        HotelId = room.Hotel.Id.Value,
-                        Price = room.Price.Price,
-                        Taxes = room.Price.Taxes,
-                        Type = room.Type,
-                        IsAvailable = room.IsAvailable,
-                        IsEnabled = room.IsEnabled,
-                        Location = room.Location,
-                        MaxGuests = room.MaxGuests
-                    });
+                        response.Add(new RoomDTO
+                        {
+                            Id = room.Id.Value,
+                            HotelId = room.Hotel.Id.Value,
+                            Price = room.Price.Price,
+                            Taxes = room.Price.Taxes,
+                            Type = room.Type,
+                            IsAvailable = room.IsAvailable,
+                            IsEnabled = room.IsEnabled,
+                            Location = room.Location,
+                            MaxGuests = room.MaxGuests
+                        });
+                    }
                 }
                 ;
                 return new PetitionResponse

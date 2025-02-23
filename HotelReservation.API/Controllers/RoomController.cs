@@ -52,8 +52,9 @@ namespace HotelReservation.API.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> SearchAvailableRooms([FromQuery] DateRange stayPeriod, [FromQuery] int guests, [FromQuery] string city)
+        public async Task<IActionResult> SearchAvailableRooms([FromQuery] DateOnly startDate, [FromQuery] DateOnly endDate, [FromQuery] int guests, [FromQuery] string city)
         {
+            DateRange stayPeriod = DateRange.Create(startDate, endDate);
             var query = new SearchAvailableRoomsQuery(stayPeriod, guests, city);
             var result = await _mediator.Send(query);
             return Ok(result);
