@@ -1,0 +1,5 @@
+services:
+  api:
+    image: "juandadev-hotelreservation"
+    ports:
+      - "5008:8080"
